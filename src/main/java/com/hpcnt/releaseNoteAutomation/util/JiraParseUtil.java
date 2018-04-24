@@ -15,16 +15,30 @@ import org.jsoup.select.Elements;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.hpcnt.releaseNoteAutomation.vo.Issue;
 
+/**
+ * 
+ * @author owen151128
+ *
+ *         JIRA parse wrapper util class
+ */
 public class JiraParseUtil {
 
+	/**
+	 * Java single-tone pattern instance
+	 */
 	private static JiraParseUtil instance;
 
+	/**
+	 * Global instance of {@link JsonParser}
+	 */
 	private JsonParser jsonParser;
 
+	/**
+	 * Global instance of variable for REGEX
+	 */
 	private Pattern pattern;
 	private Matcher matcher;
 
@@ -32,16 +46,38 @@ public class JiraParseUtil {
 		this.jsonParser = new JsonParser();
 	}
 
+	/**
+	 * Single-tone pattern
+	 * 
+	 * @return {@link JiraParseUtil} instance
+	 */
 	public static synchronized JiraParseUtil getInstance() {
 		if (instance == null)
 			instance = new JiraParseUtil();
 		return instance;
 	}
 
+	/**
+	 * Get HTML Document
+	 * 
+	 * @param url
+	 * @param cookies
+	 * @return {@link Document} HTML document
+	 * @throws IOException
+	 */
 	public Document getDocument(String url, Map<String, String> cookies) throws IOException {
 		return Jsoup.connect(url).cookies(cookies).method(Method.GET).userAgent(JiraConstants.USER_AGENT).get();
 	}
 
+	/**
+	 * Parsing releaseNote
+	 * 
+	 * @param document
+	 * @param list
+	 * @param cookies
+	 * @return {@link ArrayList<Issue>} issueList
+	 * @throws IOException
+	 */
 	public ArrayList<Issue> parseReleaseNote(Document document, ArrayList<Issue> list, Map<String, String> cookies)
 			throws IOException {
 		ArrayList<Issue> resultList = new ArrayList<>();
@@ -75,6 +111,16 @@ public class JiraParseUtil {
 		return resultList;
 	}
 
+	/**
+	 * Get issue information(issueType, issueStatus, issueLabels)
+	 * 
+	 * @param cookies
+	 * @param issueKeyList
+	 * @param issueTypeList
+	 * @param statusList
+	 * @param labelList
+	 * @throws IOException
+	 */
 	private void getIssueInformation(Map<String, String> cookies, ArrayList<String> issueKeyList,
 			ArrayList<String> issueTypeList, ArrayList<String> statusList, ArrayList<String> labelList)
 			throws IOException {

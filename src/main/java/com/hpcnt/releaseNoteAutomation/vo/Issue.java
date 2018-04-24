@@ -1,14 +1,50 @@
 package com.hpcnt.releaseNoteAutomation.vo;
 
+/**
+ * 
+ * @author owen151128
+ *
+ *         Issue ValueObject
+ *
+ */
 public class Issue {
 
+	/**
+	 * Issue number
+	 */
 	private int issueNo;
+
+	/**
+	 * Issue title
+	 */
 	private String summary;
+
+	/**
+	 * Issue key
+	 */
 	private String issueKey;
+
+	/**
+	 * Issue taskType
+	 */
 	private String issueType;
+
+	/**
+	 * Issue status
+	 */
 	private String status;
+
+	/**
+	 * Issue labels
+	 */
 	private String labels;
 
+	/**
+	 * 
+	 * @author owen151128
+	 * 
+	 *         Use java builder pattern
+	 */
 	public static class Builder {
 		private final int issueNo;
 		private final String summary;
