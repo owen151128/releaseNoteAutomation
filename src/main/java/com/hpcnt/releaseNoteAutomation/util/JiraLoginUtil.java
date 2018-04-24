@@ -16,19 +16,7 @@ public class JiraLoginUtil {
 
 	private static JiraLoginUtil instance;
 
-	private static final String USER_AGENT = "Mozilla";
-	private static final String CONTENT_TYPE = "Content-Type";
-	private static final String JSON = "application/json";
-	private static final String ID = "username";
-	private static final String PW = "password";
-	private static final String CURRENT_TAG = "meta";
-	private static final String NAME = "name";
-	private static final String NAME_PATTERN = "ajs-remote-user-fullname";
-	private static final String CONTENT = "content";
-	private static final String NONE = "Not Found";
-
 	private static Response session;
-	private static final String JIRA_REST_URL = "https://hyperconnect.atlassian.net/rest/auth/1/session";
 
 	private JiraLoginUtil() {
 	}
@@ -47,15 +35,17 @@ public class JiraLoginUtil {
 
 	private Response sendJiraLoginRequest(String id, String pass) throws IOException {
 		JsonObject request = new JsonObject();
-		request.addProperty(ID, id);
-		request.addProperty(PW, pass);
-		return Jsoup.connect(JIRA_REST_URL).method(Method.POST).userAgent(USER_AGENT).ignoreContentType(true)
-				.requestBody(request.toString()).header(CONTENT_TYPE, JSON).execute();
+		request.addProperty(JiraConstants.ID, id);
+		request.addProperty(JiraConstants.PW, pass);
+		return Jsoup.connect(JiraConstants.REST_LOGIN_URL).method(Method.POST).userAgent(JiraConstants.REST_USER_AGENT)
+				.ignoreContentType(true).requestBody(request.toString())
+				.header(JiraConstants.CONTENT_TYPE, JiraConstants.JSON).execute();
 	}
 
 	public String getFullName(Document document) {
-		Optional<Element> name = document.getElementsByTag(CURRENT_TAG).stream()
-				.filter(e -> e.hasAttr(NAME) && NAME_PATTERN.equals(e.attr(NAME))).findFirst();
-		return name.isPresent() ? name.get().attr(CONTENT) : NONE;
+		Optional<Element> name = document.getElementsByTag(JiraConstants.CURRENT_TAG).stream().filter(
+				e -> e.hasAttr(JiraConstants.NAME) && JiraConstants.NAME_PATTERN.equals(e.attr(JiraConstants.NAME)))
+				.findFirst();
+		return name.isPresent() ? name.get().attr(JiraConstants.CONTENT) : JiraConstants.NONE;
 	}
 }
