@@ -75,11 +75,12 @@ public class JiraParseUtil {
 	 * @param document
 	 * @param list
 	 * @param cookies
-	 * @return {@link ArrayList<Issue>} issueList
+	 * @return {@link Pair<ArrayList<Issue>, Integer, String>} resultPair
 	 * @throws IOException
 	 */
-	public ArrayList<Issue> parseReleaseNote(Document document, ArrayList<Issue> list, Map<String, String> cookies)
+	public Pair<ArrayList<Issue>, Integer, String> parseReleaseNote(Document document, Map<String, String> cookies)
 			throws IOException {
+		Pair<ArrayList<Issue>, Integer, String> resultPair = null;
 		ArrayList<Issue> resultList = new ArrayList<>();
 		ArrayList<String> summaryList = new ArrayList<>();
 		ArrayList<String> issueKeyList = new ArrayList<>();
@@ -87,7 +88,7 @@ public class JiraParseUtil {
 		ArrayList<String> statusList = new ArrayList<>();
 		ArrayList<String> labelList = new ArrayList<>();
 
-		Elements result = document.select("div > div > section > ul > li");
+		Elements result = document.select(JiraConstants.GET_ISSUE_SELECTOR);
 
 		for (Element e : result) {
 			summaryList.add(e.text().toString().replaceAll(JiraConstants.SUMMARY_REGEX, ""));
@@ -108,7 +109,20 @@ public class JiraParseUtil {
 					.issueType(issueTypeList.get(i)).status(statusList.get(i)).labels(labelList.get(i)).build());
 		}
 
-		return resultList;
+		result = document.select(JiraConstants.GET_VERSION_SELECTOR);
+
+		switch (resultList.get(0).getIssueKey().substring(0, 5)) {
+		case JiraConstants.AOS:
+			resultPair = new Pair<ArrayList<Issue>, Integer, String>(resultList, JiraConstants.AZAND,
+					result.get(0).attr(JiraConstants.CONTENT));
+			break;
+		case JiraConstants.IOS:
+			resultPair = new Pair<ArrayList<Issue>, Integer, String>(resultList, JiraConstants.AZIOS,
+					result.get(0).attr(JiraConstants.CONTENT));
+			break;
+		}
+
+		return resultPair;
 	}
 
 	/**
