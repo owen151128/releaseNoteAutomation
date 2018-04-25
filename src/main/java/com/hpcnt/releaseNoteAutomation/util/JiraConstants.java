@@ -55,11 +55,22 @@ public class JiraConstants {
 	public static final String CURRENT_TAG = "meta";
 
 	/**
-	 * info login constants
+	 * Info login constants
 	 */
 	public static final String NAME = "name";
 	public static final String NAME_PATTERN = "ajs-remote-user-fullname";
 	public static final String NONE = "none";
+	
+	public static final String GET_ISSUE_SELECTOR="div > div > section > ul > li";
+	public static final String GET_VERSION_SELECTOR="head > meta[name=ajs-version-name]";
+
+	/**
+	 * ReleaseNote OS constants
+	 */
+	public static final int AZAND = 0;
+	public static final int AZIOS = 1;
+	public static final String AOS = "AZAND";
+	public static final String IOS = "AZIOS";
 
 	/**
 	 * REGEX constants
