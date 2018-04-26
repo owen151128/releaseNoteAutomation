@@ -271,7 +271,8 @@ public class GoogleSpreadSheetsUtil {
 			dataRow = new ArrayList<>();
 			dataRow.add(i.getIssueNo());
 			dataRow.add(i.getIssueType());
-			dataRow.add(i.getIssueKey());
+			dataRow.add(JiraConstants.HREF_FRONT + i.getIssueKey() + JiraConstants.HREF_MIDDLE + i.getIssueKey()
+					+ JiraConstants.HREF_REAR);
 			dataRow.add(i.getSummary());
 			dataRow.add(i.getStatus());
 			if (i.getLabels().equals(JiraConstants.NO_QA))
@@ -282,7 +283,7 @@ public class GoogleSpreadSheetsUtil {
 		}
 
 		value = new ValueRange().setValues(writeData).setMajorDimension("ROWS");
-		sheet.spreadsheets().values().update(id, range, value).setValueInputOption("RAW").execute();
+		sheet.spreadsheets().values().update(id, range, value).setValueInputOption("USER_ENTERED").execute();
 		System.out.println("complete");
 	}
 }
