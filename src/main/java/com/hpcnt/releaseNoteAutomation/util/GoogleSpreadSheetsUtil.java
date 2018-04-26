@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,6 +25,8 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.ValueRange;
+import com.hpcnt.releaseNoteAutomation.vo.Issue;
 
 /**
  * 
@@ -203,5 +207,82 @@ public class GoogleSpreadSheetsUtil {
 			return sheetsIdMatcher.group();
 		else
 			return null;
+	}
+
+	/**
+	 * Create google spreadsheet in google drive
+	 * 
+	 * @param drive
+	 * @param os
+	 * @param version
+	 * @param pathId
+	 * @return sheet id
+	 * @throws IOException
+	 */
+	public String createSheet(Drive drive, int os, String version, String pathId) throws IOException {
+		com.google.api.services.drive.model.File file = new com.google.api.services.drive.model.File();
+		if (os == JiraConstants.AZAND) {
+			file.setName(JiraConstants.AOS_TITLE + JiraConstants.BLANK + version + JiraConstants.SHEET_NAME);
+		} else {
+			file.setName(JiraConstants.IOS_TITLE + JiraConstants.BLANK + version + JiraConstants.SHEET_NAME);
+		}
+		file.setParents(Collections.singletonList(pathId));
+		file.setMimeType(JiraConstants.MIME_TYPE);
+		com.google.api.services.drive.model.File result = drive.files().create(file).setFields("id, parents").execute();
+		return result.getId();
+	}
+
+	/**
+	 * Write google spreadsheet
+	 * 
+	 * @param sheet
+	 * @param id
+	 * @param list
+	 * @throws IOException
+	 */
+	public void writeSheet(Sheets sheet, String id, ArrayList<Issue> list) throws IOException {
+		String range = "B2:G2";
+		List<List<Object>> writeData = new ArrayList<>();
+		ArrayList<String> data = new ArrayList<>();
+
+		data.add(JiraConstants.NUMBER);
+		data.add(JiraConstants.ISSUE_TYPE);
+		data.add(JiraConstants.ISSUE_KEY);
+		data.add(JiraConstants.SUMMARY);
+		data.add(JiraConstants.STATUS);
+		data.add(JiraConstants.LABELS);
+
+		List<Object> dataRow = new ArrayList<>();
+		for (String s : data) {
+			dataRow.add(s);
+		}
+		writeData.add(dataRow);
+		ValueRange value = new ValueRange().setValues(writeData).setMajorDimension("ROWS");
+		sheet.spreadsheets().values().update(id, range, value).setValueInputOption("RAW").execute();
+
+		/**
+		 * array is start index 0, so range use list.size +2 integer
+		 */
+		range = JiraConstants.RANGE_PREFIX + (list.size() + 2);
+
+		writeData.clear();
+
+		for (Issue i : list) {
+			dataRow = new ArrayList<>();
+			dataRow.add(i.getIssueNo());
+			dataRow.add(i.getIssueType());
+			dataRow.add(i.getIssueKey());
+			dataRow.add(i.getSummary());
+			dataRow.add(i.getStatus());
+			if (i.getLabels().equals(JiraConstants.NO_QA))
+				dataRow.add(JiraConstants.NO_QA);
+			else
+				dataRow.add(JiraConstants.NULL);
+			writeData.add(dataRow);
+		}
+
+		value = new ValueRange().setValues(writeData).setMajorDimension("ROWS");
+		sheet.spreadsheets().values().update(id, range, value).setValueInputOption("RAW").execute();
+		System.out.println("complete");
 	}
 }
