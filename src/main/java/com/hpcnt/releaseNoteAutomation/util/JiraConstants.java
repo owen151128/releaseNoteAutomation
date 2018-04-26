@@ -98,6 +98,9 @@ public class JiraConstants {
 	public static final String LABELS = "Labels";
 	public static final String DEFAULT_RANGE = "B2:G2";
 	public static final String RANGE_PREFIX = "B3:G";
+	public static final String HREF_FRONT = "=HYPERLINK(\"https://hyperconnect.atlassian.net/browse/";
+	public static final String HREF_MIDDLE = "\",\"";
+	public static final String HREF_REAR = "\")";
 
 	/**
 	 * Google sheet name
