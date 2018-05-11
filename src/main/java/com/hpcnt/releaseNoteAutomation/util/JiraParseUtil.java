@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JLabel;
+
 import org.jsoup.Jsoup;
 import org.jsoup.Connection.Method;
 import org.jsoup.nodes.Document;
@@ -42,7 +44,13 @@ public class JiraParseUtil {
 	private Pattern pattern;
 	private Matcher matcher;
 
-	private JiraParseUtil() {
+	/**
+	 * instance of {@link JLabel} MainWindow.mainText
+	 */
+	private JLabel mainText;
+
+	private JiraParseUtil(JLabel mainText) {
+		this.mainText = mainText;
 		this.jsonParser = new JsonParser();
 	}
 
@@ -51,9 +59,9 @@ public class JiraParseUtil {
 	 * 
 	 * @return {@link JiraParseUtil} instance
 	 */
-	public static synchronized JiraParseUtil getInstance() {
+	public static synchronized JiraParseUtil getInstance(JLabel mainText) {
 		if (instance == null)
-			instance = new JiraParseUtil();
+			instance = new JiraParseUtil(mainText);
 		return instance;
 	}
 
@@ -80,6 +88,7 @@ public class JiraParseUtil {
 	 */
 	public Pair<ArrayList<Issue>, Integer, String> parseReleaseNote(Document document, Map<String, String> cookies)
 			throws IOException {
+		mainText.setText("1/4 릴리즈 노트 파싱하는중 ...");
 		Pair<ArrayList<Issue>, Integer, String> resultPair = null;
 		ArrayList<Issue> resultList = new ArrayList<>();
 		ArrayList<String> summaryList = new ArrayList<>();
@@ -138,6 +147,7 @@ public class JiraParseUtil {
 	private void getIssueInformation(Map<String, String> cookies, ArrayList<String> issueKeyList,
 			ArrayList<String> issueTypeList, ArrayList<String> statusList, ArrayList<String> labelList)
 			throws IOException {
+		mainText.setText("2/4 이슈 정보들 불러오는중 ...");
 		Document document;
 		Map<String, String> param = new HashMap<>();
 		param.put(JiraConstants.JSON_FIELDS,

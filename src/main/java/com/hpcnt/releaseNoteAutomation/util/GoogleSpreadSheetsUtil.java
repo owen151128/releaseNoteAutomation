@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JLabel;
+
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -103,16 +105,22 @@ public class GoogleSpreadSheetsUtil {
 	private final int LOCAL_SERVER_PORT = 8080;
 
 	/**
+	 * instance of {@link JLabel} MainWindow.mainText
+	 */
+	private JLabel mainText;
+
+	/**
 	 * HTTP_TRANSPORT, DATA_STORE_FACTORY initialize
 	 */
-	public static synchronized GoogleSpreadSheetsUtil getInstance() {
+	public static synchronized GoogleSpreadSheetsUtil getInstance(JLabel mainText) {
 		if (instance == null)
-			instance = new GoogleSpreadSheetsUtil();
+			instance = new GoogleSpreadSheetsUtil(mainText);
 		return instance;
 	}
 
-	private GoogleSpreadSheetsUtil() {
+	private GoogleSpreadSheetsUtil(JLabel mainText) {
 		sheetsIdPattern = Pattern.compile(GET_ID_REGULAR_EXPRESSION);
+		this.mainText = mainText;
 		try {
 			HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 			SHEETS_DATA_STORE_FACTORY = new FileDataStoreFactory(SHEETS_DATA_STORE_DIR);
@@ -220,6 +228,7 @@ public class GoogleSpreadSheetsUtil {
 	 * @throws IOException
 	 */
 	public String createSheet(Drive drive, int os, String version, String pathId) throws IOException {
+		mainText.setText("3/4 구글 스프레드 시트 만드는중 ...");
 		com.google.api.services.drive.model.File file = new com.google.api.services.drive.model.File();
 		if (os == JiraConstants.AZAND) {
 			file.setName(JiraConstants.AOS_TITLE + JiraConstants.BLANK + version + JiraConstants.SHEET_NAME);
@@ -241,6 +250,7 @@ public class GoogleSpreadSheetsUtil {
 	 * @throws IOException
 	 */
 	public void writeSheet(Sheets sheet, String id, ArrayList<Issue> list) throws IOException {
+		mainText.setText("4/4 구글 스프레드 시트에 릴리즈 노트  작성하는중 ...");
 		String range = "B2:G2";
 		List<List<Object>> writeData = new ArrayList<>();
 		ArrayList<String> data = new ArrayList<>();
