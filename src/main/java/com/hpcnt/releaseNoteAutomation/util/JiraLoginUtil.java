@@ -29,7 +29,7 @@ public class JiraLoginUtil {
 	/**
 	 * Response for get session
 	 */
-	private static Response session;
+	public static Response session;
 
 	private JiraLoginUtil() {
 	}

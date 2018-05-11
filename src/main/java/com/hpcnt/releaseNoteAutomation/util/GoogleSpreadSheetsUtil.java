@@ -284,6 +284,5 @@ public class GoogleSpreadSheetsUtil {
 
 		value = new ValueRange().setValues(writeData).setMajorDimension("ROWS");
 		sheet.spreadsheets().values().update(id, range, value).setValueInputOption("USER_ENTERED").execute();
-		System.out.println("complete");
 	}
 }
