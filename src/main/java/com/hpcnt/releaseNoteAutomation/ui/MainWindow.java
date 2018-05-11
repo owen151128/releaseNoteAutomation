@@ -150,8 +150,8 @@ public class MainWindow extends JFrame implements MainContract.View {
 		initUi();
 		setResizable(false);
 		login = JiraLoginUtil.getInstance();
-		parse = JiraParseUtil.getInstance();
-		sheet = GoogleSpreadSheetsUtil.getInstance();
+		parse = JiraParseUtil.getInstance(mainText);
+		sheet = GoogleSpreadSheetsUtil.getInstance(mainText);
 		cache = CacheUtil.getInstance();
 		splashDispose();
 		setVisible(true);
@@ -301,33 +301,43 @@ public class MainWindow extends JFrame implements MainContract.View {
 		JButton result = new JButton(title);
 		result.setPreferredSize(new Dimension(40, 40));
 		result.addActionListener(e -> {
-			if (!isJiraLoggedIn()) {
-				Toolkit.getDefaultToolkit().beep();
-				JOptionPane.showMessageDialog(null, "JIRA 로그인이 필요한 기능입니다. 먼저 로그인을 해주세요.", "오류",
-						JOptionPane.ERROR_MESSAGE);
-			} else if (!(removeBlank(edit.getText()).equals(""))) {
-				try {
-					Pair<ArrayList<Issue>, Integer, String> resultSet = parse
-							.parseReleaseNote(parse.getDocument(edit.getText(), cookies), cookies);
-					String sheetId = sheet.createSheet(sheet.getGoogleDriveService(), resultSet.b, resultSet.c,
-							JiraConstants.DRIVE_PATH);
-					sheet.writeSheet(sheet.getGoogleSpreadSheetsService(), sheetId, resultSet.a);
-				} catch (IOException iE) {
-					iE.printStackTrace();
-					System.out.println("IO ERROR!!!");
-					JOptionPane.showMessageDialog(null, "알수 없는 오류가 발생하였습니다. 로그를 개발자에게 전송한 후. 다시 시도해 주세요.", "오류",
-							JOptionPane.ERROR_MESSAGE);
-				} catch (IllegalArgumentException iAE) {
-					iAE.printStackTrace();
-					Toolkit.getDefaultToolkit().beep();
-					JOptionPane.showMessageDialog(null, "ReleaseNote URL 이 유효하지 않습니다. 다시 시도해 주세요.", "오류",
-							JOptionPane.ERROR_MESSAGE);
+			Thread thread = new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					if (!isJiraLoggedIn()) {
+						Toolkit.getDefaultToolkit().beep();
+						JOptionPane.showMessageDialog(null, "JIRA 로그인이 필요한 기능입니다. 먼저 로그인을 해주세요.", "오류",
+								JOptionPane.ERROR_MESSAGE);
+					} else if (!(removeBlank(edit.getText()).equals(""))) {
+						try {
+							Pair<ArrayList<Issue>, Integer, String> resultSet = parse
+									.parseReleaseNote(parse.getDocument(edit.getText(), cookies), cookies);
+							String sheetId = sheet.createSheet(sheet.getGoogleDriveService(), resultSet.b, resultSet.c,
+									JiraConstants.DRIVE_PATH);
+							sheet.writeSheet(sheet.getGoogleSpreadSheetsService(), sheetId, resultSet.a);
+							Toolkit.getDefaultToolkit().beep();
+							JOptionPane.showMessageDialog(null, "작업이 완료되었습니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
+						} catch (IOException iE) {
+							iE.printStackTrace();
+							System.out.println("IO ERROR!!!");
+							JOptionPane.showMessageDialog(null, "알수 없는 오류가 발생하였습니다. 로그를 개발자에게 전송한 후. 다시 시도해 주세요.", "오류",
+									JOptionPane.ERROR_MESSAGE);
+						} catch (IllegalArgumentException iAE) {
+							iAE.printStackTrace();
+							Toolkit.getDefaultToolkit().beep();
+							JOptionPane.showMessageDialog(null, "ReleaseNote URL 이 유효하지 않습니다. 다시 시도해 주세요.", "오류",
+									JOptionPane.ERROR_MESSAGE);
+						}
+					} else {
+						Toolkit.getDefaultToolkit().beep();
+						JOptionPane.showMessageDialog(null, "ReleaseNote URL 이 입력되지 않았습니다. 다시 시도해 주세요.", "오류",
+								JOptionPane.ERROR_MESSAGE);
+					}
+					mainText.setText("위 입력란에 ReleaseNote URL 을 입력해주세요.");
 				}
-			} else {
-				Toolkit.getDefaultToolkit().beep();
-				JOptionPane.showMessageDialog(null, "ReleaseNote URL 이 입력되지 않았습니다. 다시 시도해 주세요.", "오류",
-						JOptionPane.ERROR_MESSAGE);
-			}
+			});
+			thread.start();
 		});
 		return result;
 	}
