@@ -116,4 +116,16 @@ public class CacheUtil {
 		}
 		return null;
 	}
+
+	/**
+	 * Invalidate cache method
+	 */
+	public void invalidateCache() {
+		File localFile = null;
+
+		localFile = new File(System.getProperty(HOME), PATH);
+		if (localFile.exists()) {
+			localFile.delete();
+		}
+	}
 }
