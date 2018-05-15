@@ -1,1 +1,13 @@
-{"web":{"client_id":"717156579430-jm6huq89mjm3dq1tqti7e4hlf9btcf70.apps.googleusercontent.com","project_id":"qa-automation-200206","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://accounts.google.com/o/oauth2/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"0tS32fh8QK2W-peGRVVjLHN4","redirect_uris":["http://localhost:8080/Callback"]}}
+{
+	"web": {
+		"client_id": "386957554301-n7om379js6if1u6qpsdhefq2kbu2fcih.apps.googleusercontent.com",
+		"project_id": "hpcntqa-204207",
+		"auth_uri": "https://accounts.google.com/o/oauth2/auth",
+		"token_uri": "https://accounts.google.com/o/oauth2/token",
+		"auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+		"client_secret": "FULaljuBvGjPtvUxw4LJ1yep",
+		"redirect_uris": [
+			"http://localhost:8080/Callback"
+		]
+	}
+}

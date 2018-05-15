@@ -55,7 +55,7 @@ public class GoogleSpreadSheetsUtil {
 	/**
 	 * OAUTH 2.0 client name
 	 */
-	private final String AUTH_NAME = "Java Client";
+	private final String AUTH_NAME = "hpcntqa";
 
 	/**
 	 * OAUTH 2.0 credential save_path for SpreadSheets
