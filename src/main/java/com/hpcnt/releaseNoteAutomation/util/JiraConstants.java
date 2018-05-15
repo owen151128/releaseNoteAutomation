@@ -18,7 +18,7 @@ public class JiraConstants {
 	/**
 	 * Google drive path
 	 */
-	public static final String DRIVE_PATH = "1xld-si3Ci5W_3BydGxZI129KMVSxbjkW";
+	public static final String DRIVE_PATH = "0B_Vxyf5seBisaTZ0MWVoNTVfWEk";
 
 	/**
 	 * JIRA base URL
