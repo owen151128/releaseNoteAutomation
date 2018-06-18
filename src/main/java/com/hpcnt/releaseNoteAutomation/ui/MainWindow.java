@@ -310,6 +310,9 @@ public class MainWindow extends JFrame implements MainContract.View {
 						JOptionPane.showMessageDialog(null, "JIRA 로그인이 필요한 기능입니다. 먼저 로그인을 해주세요.", "오류",
 								JOptionPane.ERROR_MESSAGE);
 					} else if (!(removeBlank(edit.getText()).equals(""))) {
+						if (!isExistJson()) {
+							saveGoogleSecretKey(JOptionPane.showInputDialog("Json key 값을 입력해주세요."));
+						}
 						try {
 							Pair<ArrayList<Issue>, Integer, String> resultSet = parse
 									.parseReleaseNote(parse.getDocument(edit.getText(), cookies), cookies);
@@ -451,6 +454,22 @@ public class MainWindow extends JFrame implements MainContract.View {
 	}
 
 	/**
+	 * Save GoogleSecretKey method
+	 * 
+	 * @param id
+	 * @param pw
+	 */
+	private void saveGoogleSecretKey(String key) {
+		try {
+			cache.saveSecretKey(key);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		splashDispose();
+
+	}
+
+	/**
 	 * Check exist cache
 	 * 
 	 * @return result
@@ -469,6 +488,18 @@ public class MainWindow extends JFrame implements MainContract.View {
 	 */
 	private boolean isJiraLoggedIn() {
 		if (cookies != null && JiraLoginUtil.session != null)
+			return true;
+		else
+			return false;
+	}
+
+	/**
+	 * check exist Json
+	 * 
+	 * @return result
+	 */
+	private boolean isExistJson() {
+		if (cache.loadSecretKey() != null)
 			return true;
 		else
 			return false;

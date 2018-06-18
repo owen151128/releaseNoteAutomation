@@ -1,6 +1,7 @@
 package com.hpcnt.releaseNoteAutomation.util;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -137,8 +138,8 @@ public class GoogleSpreadSheetsUtil {
 	 * @throws IOException
 	 */
 	private Credential getSpreadSheetsOauth2Authorize() throws IOException {
-		InputStream is = GoogleSpreadSheetsUtil.class.getResourceAsStream("/resources/google_oauth2.json");
-		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(is));
+		FileInputStream fis = new FileInputStream(new File(System.getProperty("user.home"), ".credentials/SECRET_KEY"));
+		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(fis));
 		GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY,
 				clientSecrets, SPREAD_SHEETS_SCOPES).setDataStoreFactory(SHEETS_DATA_STORE_FACTORY)
 						.setAccessType("offline").build();
@@ -157,8 +158,8 @@ public class GoogleSpreadSheetsUtil {
 	 * @throws IOException
 	 */
 	private Credential getDriveOauth2Authorize() throws IOException {
-		InputStream is = GoogleSpreadSheetsUtil.class.getResourceAsStream("/resources/google_oauth2.json");
-		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(is));
+		FileInputStream fis = new FileInputStream(new File(System.getProperty("user.home"), ".credentials/SECRET_KEY"));
+		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(fis));
 		GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY,
 				clientSecrets, DRIVE_SHEETS_SCOPES).setDataStoreFactory(DRIVE_DATA_STORE_FACTORY)
 						.setAccessType("offline").build();
