@@ -1,9 +1,12 @@
 package com.hpcnt.releaseNoteAutomation.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -18,7 +21,9 @@ import java.util.HashMap;
 public class CacheUtil {
 
 	private static final String HOME = "user.home";
-	private static final String PATH = ".credentials/local_cache";
+	private static final String CREDENTIALS_ROOT = ".credentials/";
+	private static final String CACHE_PATH = "local_cache";
+	private static final String SECRET_KEY_PATH = "SECRET_KEY";
 
 	/**
 	 * Single-tone instance of {@link CacheUtil}
@@ -53,7 +58,7 @@ public class CacheUtil {
 		ObjectOutputStream oos = null;
 
 		try {
-			localFile = new File(System.getProperty(HOME), PATH);
+			localFile = new File(System.getProperty(HOME), CREDENTIALS_ROOT + CACHE_PATH);
 			if (!localFile.exists()) {
 				localFile.createNewFile();
 			}
@@ -123,7 +128,82 @@ public class CacheUtil {
 	public void invalidateCache() {
 		File localFile = null;
 
-		localFile = new File(System.getProperty(HOME), PATH);
+		localFile = new File(System.getProperty(HOME), CREDENTIALS_ROOT + CACHE_PATH);
+		if (localFile.exists()) {
+			localFile.delete();
+		}
+	}
+
+	/**
+	 * Save SECRET_KEY method
+	 * 
+	 * @param cache
+	 */
+	public void saveSecretKey(String secret) {
+		File localFile = null;
+		FileWriter fw = null;
+		try {
+			localFile = new File(System.getProperty(HOME), CREDENTIALS_ROOT + SECRET_KEY_PATH);
+			if (!localFile.exists()) {
+				localFile.createNewFile();
+			}
+			fw = new FileWriter(localFile);
+			fw.write(secret);
+			fw.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.out.println("Error : secret_key_cache file not found...\n");
+		} catch (IOException e) {
+			System.out.println("Error : cache IO Faild...\n");
+		} finally {
+			try {
+				if (fw != null)
+					fw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.out.println("Critical Error! please send this log to developer\n");
+			}
+		}
+	}
+
+	/**
+	 * load SECRET_KEY method
+	 * 
+	 * @return HashMap cache
+	 */
+	@SuppressWarnings("unchecked")
+	public String loadSecretKey() {
+		File localFile = null;
+		BufferedReader br = null;
+		HashMap<String, String> cache = new HashMap<>();
+
+		try {
+			localFile = new File(System.getProperty(HOME), CREDENTIALS_ROOT + SECRET_KEY_PATH);
+			if (!localFile.exists()) {
+				System.out.println("Error : secret_key_cache is null...\n");
+				return null;
+			}
+			br = new BufferedReader(new FileReader(localFile));
+			String result = br.readLine();
+			br.close();
+
+			return result;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.out.println("Error : secret_key_cache file not found...\n");
+		} catch (IOException e) {
+			System.out.println("Error : secret_key_cache IO Faild...\n");
+		}
+		return null;
+	}
+
+	/**
+	 * Invalidate secret_key_cache method
+	 */
+	public void invalidateSecretKey() {
+		File localFile = null;
+
+		localFile = new File(System.getProperty(HOME), CREDENTIALS_ROOT + SECRET_KEY_PATH);
 		if (localFile.exists()) {
 			localFile.delete();
 		}
