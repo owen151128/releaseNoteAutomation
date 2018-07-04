@@ -3,6 +3,7 @@ package com.hpcnt.releaseNoteAutomation.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -12,6 +13,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -311,7 +314,16 @@ public class MainWindow extends JFrame implements MainContract.View {
 								JOptionPane.ERROR_MESSAGE);
 					} else if (!(removeBlank(edit.getText()).equals(""))) {
 						if (!isExistJson()) {
-							saveGoogleSecretKey(JOptionPane.showInputDialog("Json key 값을 입력해주세요."));
+							try {
+								if (Desktop.isDesktopSupported())
+									Desktop.getDesktop().browse(new URI(
+											"https://docs.google.com/presentation/d/1iPYsQ36dQYmP8EZl_C_dzjhjEhmzDAJrFzA9bpEdsZA"));
+								saveGoogleSecretKey(JOptionPane.showInputDialog("Json key 값을 입력해주세요."));
+							} catch (IOException e) {
+								e.printStackTrace();
+							} catch (URISyntaxException e2) {
+								e2.printStackTrace();
+							}
 						}
 						try {
 							Pair<ArrayList<Issue>, Integer, String> resultSet = parse
