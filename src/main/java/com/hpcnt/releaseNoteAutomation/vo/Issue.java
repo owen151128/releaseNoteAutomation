@@ -40,6 +40,11 @@ public class Issue {
 	private String labels;
 
 	/**
+	 * Issue user select
+	 */
+	private boolean select;
+
+	/**
 	 * 
 	 * @author owen151128
 	 * 
@@ -115,6 +120,14 @@ public class Issue {
 
 	public String getLabels() {
 		return labels;
+	}
+
+	public void setSelect(boolean select) {
+		this.select = select;
+	}
+
+	public boolean getSelect() {
+		return select;
 	}
 
 }
