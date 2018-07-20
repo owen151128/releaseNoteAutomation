@@ -9,6 +9,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -18,7 +20,11 @@ import java.net.URISyntaxException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -29,6 +35,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -36,6 +43,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
@@ -113,6 +121,11 @@ public class MainWindow extends JFrame implements MainContract.View {
 	 * Global instance of the {@link JDialog} MainWindow LoginDialog
 	 */
 	private JDialog loginDialog;
+
+	/**
+	 * Global instance of the {@link JDialog} MainWindow SelectDialog
+	 */
+	private JDialog selectDialog;
 
 	/**
 	 * Global instance of the {@link JTextField} LoginDialog id
@@ -266,6 +279,112 @@ public class MainWindow extends JFrame implements MainContract.View {
 	}
 
 	/**
+	 * show select JDialog & select action event
+	 */
+	public void showSelectDialog(int pairB, String pairC, ArrayList<Issue> issue, String time) {
+		ArrayList<Issue> result = new ArrayList<>();
+		selectDialog = new JDialog((JFrame) null);
+		JCheckBox[] checkBox = new JCheckBox[issue.size()];
+		checkBox[0] = new JCheckBox("tmp");
+		Font specialFont = new Font(checkBox[0].getFont().getName(), Font.BOLD, checkBox[0].getFont().getSize());
+		JPanel title = PanelFactory.createPanel(new GridLayout(LAYOUT_PARAM + 2, LAYOUT_PARAM));
+		JPanel titleUp = PanelFactory.createPanel(new GridLayout(LAYOUT_PARAM, LAYOUT_PARAM + 1));
+		title.add(titleUp);
+		JPanel main;
+		JScrollPane scrollMain;
+		JPanel sub = PanelFactory.createPanel(new GridLayout(LAYOUT_PARAM, LAYOUT_PARAM));
+		JButton allSelect = new JButton("모두 선택");
+		JButton allRelease = new JButton("모두 해제");
+		JButton accept = new JButton("확인");
+
+		allSelect.addActionListener(e -> {
+			for (JCheckBox c : checkBox)
+				c.setSelected(true);
+			selectDialog.pack();
+			selectDialog.invalidate();
+		});
+
+		allRelease.addActionListener(e -> {
+			for (JCheckBox c : checkBox)
+				c.setSelected(false);
+			selectDialog.pack();
+			selectDialog.invalidate();
+		});
+
+		accept.addActionListener(e -> {
+			result.clear();
+			for (Issue i : issue)
+				i.setSelect(false);
+			for (int i = 0; i < checkBox.length; i++) {
+				if (checkBox[i].isSelected())
+					issue.get(i).setSelect(true);
+			}
+			for (int i = 0; i < issue.size(); i++) {
+				if (issue.get(i).getSelect())
+					result.add(issue.get(i));
+			}
+
+			try {
+				writeSheet(pairB, pairC, result);
+				JOptionPane.showMessageDialog(null, "작업이 완료되었습니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
+			} catch (IOException iE) {
+				iE.printStackTrace();
+				System.out.println("IO ERROR!!!");
+				JOptionPane.showMessageDialog(null, "알수 없는 오류가 발생하였습니다. 로그를 개발자에게 전송한 후. 다시 시도해 주세요.", "오류",
+						JOptionPane.ERROR_MESSAGE);
+			} catch (IllegalArgumentException iAE) {
+				iAE.printStackTrace();
+				Toolkit.getDefaultToolkit().beep();
+				JOptionPane.showMessageDialog(null, "ReleaseNote URL 이 유효하지 않습니다. 다시 시도해 주세요.", "오류",
+						JOptionPane.ERROR_MESSAGE);
+			}
+			mainText.setText("위 입력란에 ReleaseNote URL 을 입력해주세요.");
+		});
+
+		main = PanelFactory.createPanel(new GridLayout(issue.size(), LAYOUT_PARAM));
+		scrollMain = new JScrollPane(main);
+		scrollMain.getVerticalScrollBar().setUnitIncrement(16);
+		scrollMain.getHorizontalScrollBar().setUnitIncrement(16);
+
+		int j = 0;
+		for (Issue i : issue) {
+			checkBox[j] = new JCheckBox(i.getIssueNo() + " / " + i.getIssueType() + " / " + i.getIssueKey() + " / "
+					+ i.getStatus() + " / " + i.getLabels() + " / " + i.getSummary());
+			if (i.getLabels().equals(JiraConstants.NONE)) {
+				checkBox[j].setForeground(Color.BLUE);
+				checkBox[j].setFont(specialFont);
+				checkBox[j].setSelected(true);
+			}
+			main.add(checkBox[j]);
+			j++;
+		}
+
+		titleUp.add(allSelect);
+		titleUp.add(allRelease);
+		JLabel text = new JLabel("데이터 추출 기준시간 : " + time);
+		text.setFont(text.getFont().deriveFont(14.0f));
+		title.add(text);
+		sub.add(accept);
+
+		title.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		sub.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+		selectDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		selectDialog.setPreferredSize(new Dimension(600, 600));
+		selectDialog.setLayout(new BorderLayout());
+
+		selectDialog.add(title, BorderLayout.NORTH);
+
+		selectDialog.add(scrollMain, BorderLayout.CENTER);
+
+		selectDialog.add(sub, BorderLayout.SOUTH);
+
+		selectDialog.pack();
+		selectDialog.setLocationRelativeTo(null);
+		selectDialog.setVisible(true);
+	}
+
+	/**
 	 * Core UI initialize
 	 */
 	private void initUi() {
@@ -326,13 +445,11 @@ public class MainWindow extends JFrame implements MainContract.View {
 							}
 						}
 						try {
+							String nowTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+									.format(Calendar.getInstance().getTime());
 							Pair<ArrayList<Issue>, Integer, String> resultSet = parse
 									.parseReleaseNote(parse.getDocument(edit.getText(), cookies), cookies);
-							String sheetId = sheet.createSheet(sheet.getGoogleDriveService(), resultSet.b, resultSet.c,
-									JiraConstants.DRIVE_PATH);
-							sheet.writeSheet(sheet.getGoogleSpreadSheetsService(), sheetId, resultSet.a);
-							Toolkit.getDefaultToolkit().beep();
-							JOptionPane.showMessageDialog(null, "작업이 완료되었습니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
+							showSelectDialog(resultSet.b, resultSet.c, resultSet.a, nowTime);
 						} catch (IOException iE) {
 							iE.printStackTrace();
 							System.out.println("IO ERROR!!!");
@@ -355,6 +472,17 @@ public class MainWindow extends JFrame implements MainContract.View {
 			thread.start();
 		});
 		return result;
+	}
+
+	/**
+	 * write sheet by result
+	 * 
+	 * @param result
+	 */
+	private void writeSheet(int pairB, String pairC, ArrayList<Issue> result) throws IOException {
+		String sheetId = sheet.createSheet(sheet.getGoogleDriveService(), pairB, pairC, JiraConstants.DRIVE_PATH);
+		sheet.writeSheet(sheet.getGoogleSpreadSheetsService(), sheetId, result);
+		Toolkit.getDefaultToolkit().beep();
 	}
 
 	/**
