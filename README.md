@@ -1,4 +1,6 @@
 # JIRA Release Note Automation Tool
+<img src="https://img.shields.io/badge/Latest%20release-1.1.0-brightgreen.svg"/>
+
 **Hyperconnect Quality Assurance** Automation Tool Project.
 
 ## Required
